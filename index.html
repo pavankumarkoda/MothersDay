@@ -144,11 +144,18 @@
 </head>
 <body>
 
+    <audio id="bg-music" loop>
+        <!-- Replace the URL below with your actual MP3 song file -->
+        <source src="https://www.bensound.com/bensound-music/bensound-love.mp3" type="audio/mpeg">
+    </audio>
+
     <div class="content-container" id="main-content">
         <p class="subtext">To the world's best Mom</p>
         <h1>Happy Mother's Day</h1>
-        <button class="magic-btn" onclick="triggerLoveBurst(event)">
-            <span style="font-size: 1.2rem;">🌸</span> SEND MORE LOVE
+        <!-- Main Interactive Button -->
+        <button id="main-magic-btn" class="magic-btn" onclick="handleMainAction(event)">
+            <span id="btn-icon" style="font-size: 1.2rem;">🌸</span> 
+            <span id="btn-text">SEND MORE LOVE</span>
         </button>
     </div>
 
@@ -164,13 +171,65 @@
         const mouse = { x: -1000, y: -1000 };
         const isMobile = width < 768;
         
-        // High density of balloons to be "all over"
-        const MAX_BALLOONS = isMobile ? 50 : 100;
+        const MAX_BALLOONS = isMobile ? 60 : 120;
         const MAX_PETALS = isMobile ? 30 : 60;
+
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playPopSound() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440 + Math.random() * 400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function handleMainAction(e) {
+            initAudio();
+            const audio = document.getElementById('bg-music');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+            
+            // Toggle Music
+            if (audio.paused) {
+                audio.play().catch(err => console.log("Audio blocked. Try again."));
+                btnText.innerText = "MUSIC PLAYING";
+                btnIcon.innerText = "⏸️";
+            } else {
+                audio.pause();
+                btnText.innerText = "SEND MORE LOVE";
+                btnIcon.innerText = "🌸";
+            }
+
+            // Burst Effect (Petals)
+            const rect = e.target.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top;
+
+            for (let i = 0; i < 20; i++) {
+                const p = new Petal(true, cx, cy);
+                petals.push(p);
+                if (petals.length > 100) {
+                    const old = petals.shift();
+                    old.el.remove();
+                }
+            }
+        }
 
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.clientX;
             mouse.y = e.clientY;
+            initAudio();
         });
 
         class Balloon {
@@ -189,9 +248,6 @@
                 this.el.appendChild(string);
                 document.body.appendChild(this.el);
                 
-                // Direct hover listener for instant response
-                this.el.onmouseenter = () => this.pop();
-                
                 this.reset(isInitial);
             }
 
@@ -200,14 +256,12 @@
                 this.el.style.opacity = '1';
                 this.inner.style.transform = 'scale(1)';
                 
-                // Randomly distributed across the screen
                 this.x = Math.random() * width;
                 this.y = isInitial ? (Math.random() * height) : (height + 150 + (Math.random() * 200));
                 
                 this.vy = -(Math.random() * 0.8 + 0.3);
                 this.vx = (Math.random() - 0.5) * 0.2;
                 
-                // Pink/Red color palette for "small red balloons"
                 const colors = ['#f48fb1', '#f06292', '#ffcdd2', '#ff8a80', '#ef9a9a', '#e91e63'];
                 this.inner.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 
@@ -219,10 +273,10 @@
             pop() {
                 if (this.popped) return;
                 this.popped = true;
-                this.inner.style.transform = 'scale(1.6)';
+                this.inner.style.transform = 'scale(1.8)';
                 this.el.style.opacity = '0';
+                playPopSound();
                 
-                // Respawn after a delay
                 setTimeout(() => {
                     this.reset();
                 }, 1500);
@@ -240,12 +294,11 @@
                     this.x = Math.random() * width;
                 }
 
-                // Hover proximity check
                 const dx = this.x - mouse.x;
                 const dy = (this.y - 30) - mouse.y;
                 const distSq = dx*dx + dy*dy;
                 
-                // Radius of 70px for "passing over" to trigger
+                // POP on mouse hover
                 if (distSq < 4900) {
                     this.pop();
                 }
@@ -292,23 +345,7 @@
             }
         }
 
-        function triggerLoveBurst(e) {
-            const rect = e.target.getBoundingClientRect();
-            const cx = rect.left + rect.width / 2;
-            const cy = rect.top;
-
-            for (let i = 0; i < 15; i++) {
-                const p = new Petal(true, cx, cy);
-                petals.push(p);
-                if (petals.length > 100) {
-                    const old = petals.shift();
-                    old.el.remove();
-                }
-            }
-        }
-
         function init() {
-            // Populate initially across the screen
             for (let i = 0; i < MAX_BALLOONS; i++) {
                 balloons.push(new Balloon(true));
             }
