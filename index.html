@@ -145,7 +145,6 @@
 <body>
 
     <audio id="bg-music" loop>
-        <!-- Replace the URL below with your actual MP3 song file -->
         <source src="song.mp3" type="audio/mpeg">
     </audio>
 
@@ -174,6 +173,7 @@
         const MAX_BALLOONS = isMobile ? 60 : 120;
         const MAX_PETALS = isMobile ? 30 : 60;
 
+        // Audio Context for "Pop" sounds
         let audioCtx;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -202,7 +202,7 @@
             
             // Toggle Music
             if (audio.paused) {
-                audio.play().catch(err => console.log("Audio blocked. Try again."));
+                audio.play().catch(err => console.log("Audio blocked. Ensure song.mp3 is in the same folder."));
                 btnText.innerText = "MUSIC PLAYING";
                 btnIcon.innerText = "⏸️";
             } else {
@@ -226,11 +226,15 @@
             }
         }
 
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-            initAudio();
-        });
+        const updatePointer = (e) => {
+            mouse.x = e.clientX || (e.touches && e.touches[0].clientX);
+            mouse.y = e.clientY || (e.touches && e.touches[0].clientY);
+            initAudio(); // Initialize audio on first interaction
+        };
+
+        window.addEventListener('mousemove', updatePointer);
+        window.addEventListener('touchstart', updatePointer, { passive: true });
+        window.addEventListener('touchmove', updatePointer, { passive: true });
 
         class Balloon {
             constructor(isInitial = false) {
@@ -294,11 +298,12 @@
                     this.x = Math.random() * width;
                 }
 
+                // Interaction Distance
                 const dx = this.x - mouse.x;
                 const dy = (this.y - 30) - mouse.y;
                 const distSq = dx*dx + dy*dy;
                 
-                // POP on mouse hover
+                // POP on hover or touch (within 70px radius)
                 if (distSq < 4900) {
                     this.pop();
                 }
