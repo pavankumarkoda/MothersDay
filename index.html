@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,379 +30,10 @@
             position: absolute;
             top: 45%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
+            transform: translate(-50%, -50%);
             text-align: center;
             z-index: 100;
             width: 90%;
-            max-width: 800px;
-            opacity: 0;
-            transition: opacity 2s ease, transform 1.5s cubic-bezier(0.2, 1, 0.3, 1);
-            pointer-events: none;
-        }
-
-        .content-container.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: all;
-        }
-
-        .magic-btn {
-            margin-top: 2rem;
-            padding: 1rem 2.5rem;
-            border-radius: 9999px;
-            background: white;
-            color: var(--accent-pink);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(216, 27, 96, 0.1);
-            border: 1px solid rgba(216, 27, 96, 0.1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .magic-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(216, 27, 96, 0.15);
-        }
-
-        .balloon {
-            position: absolute;
-            pointer-events: auto;
-            z-index: 5;
-            will-change: transform, opacity;
-            cursor: pointer;
-        }
-
-        .balloon-inner {
-            width: clamp(40px, 8vw, 60px);
-            height: clamp(50px, 10vw, 75px);
-            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
-            position: relative;
-            opacity: 0.6;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-        }
-
-        .balloon-string {
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            width: 1px;
-            height: 30px;
-            background: rgba(0,0,0,0.1);
-        }
-
-        .petal {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .footer {
-            position: absolute;
-            bottom: 2rem;
-            width: 100%;
-            text-align: center;
-            z-index: 101;
-        }
-
-        @keyframes swipeHand {
-            0%, 100% { transform: translateX(-15px) rotate(-10deg); }
-            50% { transform: translateX(15px) rotate(10deg); }
-        }
-
-        .hand-anim {
-            animation: swipeHand 2s ease-in-out infinite;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Mock Audio Handling (Silent placeholder) -->
-    <audio id="bg-music" loop>
-        <source src="song.mp3" type="audio/mpeg">
-    </audio>
-
-    <div class="content-container" id="main-content">
-        <p class="subtext text-stone-500 tracking-[0.5em] uppercase text-xs sm:text-sm mb-4">
-            To the world's best Mom
-        </p>
-        
-        <h1 class="font-['Great_Vibes'] text-5xl sm:text-7xl text-[#d81b60] leading-tight mb-6">
-            Happy Mother's Day
-        </h1>
-        
-        <div id="swipe-demo" class="mb-8 opacity-80 transition-opacity duration-500">
-            <div class="text-3xl hand-anim mb-2">👆</div>
-            <p class="text-[10px] tracking-[3px] uppercase font-semibold text-stone-400">Swipe to Pop</p>
-        </div>
-
-        <button id="main-magic-btn" class="magic-btn" onclick="handleMainAction(event)">
-            <span id="btn-icon">🌸</span> 
-            <span id="btn-text">Send Love</span>
-        </button>
-    </div>
-
-    <div class="footer">
-        <p class="text-[9px] uppercase tracking-[4px] text-stone-400 mb-1">Designed with Love by</p>
-        <a href="https://weddinginvitation.store" target="_blank" class="text-[#c08497] font-semibold text-xs hover:underline tracking-widest">
-            weddinginvitation.store
-        </a>
-    </div>
-
-    <script>
-        let width = window.innerWidth;
-        let height = window.innerHeight;
-        const petals = [];
-        const balloons = [];
-        const mouse = { x: -1000, y: -1000 };
-        const isMobile = width < 768;
-        
-        const MAX_BALLOONS = isMobile ? 35 : 70;
-        const MAX_PETALS = isMobile ? 30 : 50;
-
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        function playPopSound() {
-            if (!audioCtx) return;
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400 + Math.random() * 300, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.1);
-            } catch(e) {}
-        }
-
-        function handleMainAction(e) {
-            initAudio();
-            hideDemo();
-            const audio = document.getElementById('bg-music');
-            const btnText = document.getElementById('btn-text');
-            const btnIcon = document.getElementById('btn-icon');
-            
-            // Interaction: Toggle Music (if available)
-            if (audio.paused) {
-                audio.play().catch(() => {
-                    console.log("Audio file 'song.mp3' not found or blocked.");
-                });
-                btnText.innerText = "Music Playing";
-                btnIcon.innerText = "⏸️";
-            } else {
-                audio.pause();
-                btnText.innerText = "Send More Love";
-                btnIcon.innerText = "🌸";
-            }
-
-            // Burst Effect
-            const rect = e.target.getBoundingClientRect();
-            const cx = rect.left + rect.width / 2;
-            const cy = rect.top;
-
-            for (let i = 0; i < 15; i++) {
-                petals.push(new Petal(true, cx, cy));
-            }
-        }
-
-        const hideDemo = () => {
-            const demo = document.getElementById('swipe-demo');
-            if(demo) demo.style.opacity = '0';
-        };
-
-        const updatePointer = (e) => {
-            if (e.touches && e.touches.length > 0) {
-                mouse.x = e.touches[0].clientX;
-                mouse.y = e.touches[0].clientY;
-            } else {
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-            }
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        };
-
-        window.addEventListener('mousemove', updatePointer);
-        window.addEventListener('touchstart', updatePointer, { passive: true });
-        window.addEventListener('touchmove', updatePointer, { passive: true });
-        window.addEventListener('mousedown', hideDemo, { once: true });
-
-        class Balloon {
-            constructor(isInitial = false) {
-                this.el = document.createElement('div');
-                this.el.className = 'balloon';
-                
-                this.inner = document.createElement('div');
-                this.inner.className = 'balloon-inner';
-                
-                const string = document.createElement('div');
-                string.className = 'balloon-string';
-                
-                this.el.appendChild(this.inner);
-                this.el.appendChild(string);
-                document.body.appendChild(this.el);
-                
-                this.reset(isInitial);
-            }
-
-            reset(isInitial = false) {
-                this.popped = false;
-                this.el.style.display = 'block';
-                this.el.style.opacity = '1';
-                this.inner.style.transform = 'scale(1)';
-                
-                this.x = Math.random() * width;
-                this.y = isInitial ? (Math.random() * height) : (height + 100 + (Math.random() * 200));
-                
-                this.vy = -(Math.random() * 0.6 + 0.3);
-                this.vx = (Math.random() - 0.5) * 0.3;
-                
-                const colors = ['#f48fb1', '#f06292', '#ffcdd2', '#ff8a80', '#ef9a9a', '#e91e63'];
-                this.inner.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                this.scale = 0.7 + Math.random() * 0.5;
-                this.rotation = (Math.random() - 0.5) * 15;
-                this.oscillationSpeed = 0.001 + Math.random() * 0.002;
-            }
-
-            pop() {
-                if (this.popped) return;
-                this.popped = true;
-                this.inner.style.transform = 'scale(2)';
-                this.el.style.opacity = '0';
-                playPopSound();
-                
-                setTimeout(() => {
-                    this.reset();
-                }, 1000);
-            }
-
-            update() {
-                if (this.popped) return;
-
-                this.y += this.vy;
-                const wave = Math.sin(Date.now() * this.oscillationSpeed) * 0.5;
-                this.x += this.vx + wave;
-
-                if (this.y < -150) {
-                    this.y = height + 150;
-                    this.x = Math.random() * width;
-                }
-
-                const dx = this.x - mouse.x;
-                const dy = (this.y) - mouse.y;
-                const distSq = dx*dx + dy*dy;
-                const popRadius = isMobile ? 40 : 60;
-
-                if (distSq < popRadius * popRadius) {
-                    this.pop();
-                }
-
-                this.el.style.transform = `translate3d(${this.x}px, ${this.y}px, 0) rotate(${this.rotation}deg) scale(${this.scale})`;
-            }
-        }
-
-        class Petal {
-            constructor(isBurst = false, x, y) {
-                this.el = document.createElement('div');
-                this.el.className = 'petal';
-                this.el.innerHTML = `<svg viewBox="0 0 24 24" fill="#f48fb1" style="opacity: 0.6"><path d="M12,21C12,21 4,16 4,10C4,4 12,2 12,2C12,2 20,4 20,10C20,16 12,21 12,21Z"/></svg>`;
-                document.body.appendChild(this.el);
-                this.reset(isBurst, x, y);
-            }
-
-            reset(isBurst = false, x, y) {
-                this.isBurst = isBurst;
-                this.x = x ?? Math.random() * width;
-                this.y = y ?? (Math.random() * height * -1);
-                
-                if (isBurst) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const speed = Math.random() * 6 + 2;
-                    this.vx = Math.cos(angle) * speed;
-                    this.vy = Math.sin(angle) * speed;
-                } else {
-                    this.vx = (Math.random() - 0.5) * 1.5;
-                    this.vy = Math.random() * 1.2 + 0.8;
-                }
-                
-                this.rotation = Math.random() * 360;
-                this.rotSpeed = (Math.random() - 0.5) * 2;
-                this.scale = 0.5 + Math.random() * 0.5;
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.rotation += this.rotSpeed;
-
-                if (this.isBurst) {
-                    this.vx *= 0.96;
-                    this.vy += 0.05; // Gravity for burst
-                }
-
-                if (this.y > height + 50) {
-                    if (this.isBurst) {
-                        this.el.remove();
-                        return false;
-                    }
-                    this.y = -50;
-                    this.x = Math.random() * width;
-                }
-                
-                this.el.style.transform = `translate3d(${this.x}px, ${this.y}px, 0) rotate(${this.rotation}deg) scale(${this.scale})`;
-                return true;
-            }
-        }
-
-        function init() {
-            for (let i = 0; i < MAX_BALLOONS; i++) {
-                balloons.push(new Balloon(true));
-            }
-            for (let i = 0; i < MAX_PETALS; i++) {
-                petals.push(new Petal());
-            }
-
-            function animate() {
-                balloons.forEach(b => b.update());
-                for (let i = petals.length - 1; i >= 0; i--) {
-                    if (!petals[i].update()) {
-                        petals.splice(i, 1);
-                    }
-                }
-                requestAnimationFrame(animate);
-            }
-            animate();
-
-            setTimeout(() => {
-                document.getElementById('main-content').classList.add('show');
-            }, 300);
-        }
-
-        window.onload = init;
-        window.onresize = () => {
-            width = window.innerWidth;
-            height = window.innerHeight;
-        };
-    </script>
-</body>
-</html>
-
-```
             max-width: 800px;
             opacity: 0;
             transition: opacity 2s ease, transform 1.5s cubic-bezier(0.2, 1, 0.3, 1);
@@ -634,16 +264,11 @@ window.addEventListener('touchstart', hideDemo, { once: true });
             }
         }
 
-         const updatePointer = (e) => {
-    if (e.touches && e.touches.length > 0) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
-    } else {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-    }
-    initAudio(); // Initialize audio on first interaction
-};
+        const updatePointer = (e) => {
+            mouse.x = e.clientX || (e.touches && e.touches[0].clientX);
+            mouse.y = e.clientY || (e.touches && e.touches[0].clientY);
+            initAudio(); // Initialize audio on first interaction
+        };
 
         window.addEventListener('mousemove', updatePointer);
         window.addEventListener('touchstart', updatePointer, { passive: true });
@@ -711,18 +336,19 @@ window.addEventListener('touchstart', hideDemo, { once: true });
                     this.x = Math.random() * width;
                 }
 
-                /// Interaction Distance
-const dx = this.x - mouse.x;
-const dy = (this.y - 30) - mouse.y;
-const distSq = dx*dx + dy*dy;
+                // Interaction Distance
+                const dx = this.x - mouse.x;
+                const dy = (this.y - 30) - mouse.y;
+                const distSq = dx*dx + dy*dy;
+                
+                // POP on hover or touch (within 70px radius)
+                if (distSq < 4900) {
+                    this.pop();
+                }
 
-// POP on hover or touch - smaller radius for mobile
-const popRadius = isMobile? 35 : 70; // 35px on mobile, 70px on desktop
-if (distSq < popRadius * popRadius) {
-    this.pop();
-}
-                
-                
+                this.el.style.transform = `translate3d(${this.x}px, ${this.y}px, 0) rotate(${this.rotation}deg) scale(${this.scale})`;
+            }
+        }
 
         class Petal {
             constructor(isBurst = false, x, y) {
