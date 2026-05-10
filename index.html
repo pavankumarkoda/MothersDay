@@ -264,11 +264,16 @@ window.addEventListener('touchstart', hideDemo, { once: true });
             }
         }
 
-        const updatePointer = (e) => {
-            mouse.x = e.clientX || (e.touches && e.touches[0].clientX);
-            mouse.y = e.clientY || (e.touches && e.touches[0].clientY);
-            initAudio(); // Initialize audio on first interaction
-        };
+         const updatePointer = (e) => {
+    if (e.touches && e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+    } else {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    }
+    initAudio(); // Initialize audio on first interaction
+};
 
         window.addEventListener('mousemove', updatePointer);
         window.addEventListener('touchstart', updatePointer, { passive: true });
@@ -336,19 +341,18 @@ window.addEventListener('touchstart', hideDemo, { once: true });
                     this.x = Math.random() * width;
                 }
 
-                // Interaction Distance
-                const dx = this.x - mouse.x;
-                const dy = (this.y - 30) - mouse.y;
-                const distSq = dx*dx + dy*dy;
-                
-                // POP on hover or touch (within 70px radius)
-                if (distSq < 4900) {
-                    this.pop();
-                }
+                /// Interaction Distance
+const dx = this.x - mouse.x;
+const dy = (this.y - 30) - mouse.y;
+const distSq = dx*dx + dy*dy;
 
-                this.el.style.transform = `translate3d(${this.x}px, ${this.y}px, 0) rotate(${this.rotation}deg) scale(${this.scale})`;
-            }
-        }
+// POP on hover or touch - smaller radius for mobile
+const popRadius = isMobile? 35 : 70; // 35px on mobile, 70px on desktop
+if (distSq < popRadius * popRadius) {
+    this.pop();
+}
+                
+                
 
         class Petal {
             constructor(isBurst = false, x, y) {
