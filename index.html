@@ -150,9 +150,9 @@
     </audio>
 
     <div class="content-container" id="main-content">
-    <h1 class="subtext" style="font-weight: 300; letter-spacing: 8px; text-transform: uppercase; font-size: clamp(0.7rem, 2.5vw, 1rem); margin-bottom: 0.5rem; color: #8d6e63; opacity: 0.8;">
+    <p class="subtext" style="font-weight: 300; letter-spacing: 8px; text-transform: uppercase; font-size: clamp(0.7rem, 2.5vw, 1rem); margin-bottom: 0.5rem; color: #8d6e63; opacity: 0.8;">
         To the world's best Mom
-    </h1>
+    </p>
     
     <h1 style="font-family: 'Great Vibes', cursive; font-size: clamp(2.5rem, 10vw, 4.5rem); margin: 1rem 0 0 0; color: var(--accent-pink); line-height: 1.2; font-weight: 700; background-color: #fff0f5; display: inline-block; padding: 8px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(216, 27, 96, 0.1);">
         Happy Mother's Day
@@ -165,21 +165,16 @@
     </button>
 </div>
 <!-- Swipe Demo Hand -->
-<div id="swipe-demo" style="position: fixed; top: 50%; left: 50%; z-index: 999; pointer-events: none; opacity: 0.7; transform: translate(-50%, -50%); transition: opacity 0.5s ease;">
-    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" style="animation: swipeMove 2s ease-in-out infinite;">
-        <path d="M12.5 8.5C13.3 8.5 14 7.8 14 7C14 6.2 13.3 5.5 12.5 5.5C11.7 5.5 11 6.2 11 7C11 7.8 11.7 8.5 12.5 8.5Z" fill="#5d4037"/>
-        <path d="M15.5 10.5C16.3 10.5 17 9.8 17 9C17 8.2 16.3 7.5 15.5 7.5C14.7 7.5 14 8.2 14 9C14 9.8 14.7 10.5 15.5 10.5Z" fill="#5d4037"/>
-        <path d="M9.5 10.5C10.3 10.5 11 9.8 11 9C11 8.2 10.3 7.5 9.5 7.5C8.7 7.5 8 8.2 8 9C8 9.8 8.7 10.5 9.5 10.5Z" fill="#5d4037"/>
-        <path d="M6.5 12.5C7.3 12.5 8 11.8 8 11C8 10.2 7.3 9.5 6.5 9.5C5.7 9.5 5 10.2 5 11C5 11.8 5.7 12.5 6.5 12.5Z" fill="#5d4037"/>
-        <path d="M9 15.5L10.5 14L12 15.5L13.5 14L15 15.5L16 14.5L17 15.5V18.5C17 19.6 16.1 20.5 15 20.5H9C7.9 20.5 7 19.6 7 18.5V15.5L8 14.5L9 15.5Z" fill="#5d4037"/>
-        <style>
-            @keyframes swipeMove {
-                0%, 100% { transform: translateX(-40px); }
-                50% { transform: translateX(40px); }
-            }
-        </style>
-    </svg>
-    <div style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: #5d4037; text-align: center; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500;">Swipe to Pop</div>
+<!-- Swipe Demo Hand -->
+<div id="swipe-demo" style="position: relative; margin: 0 auto 15px auto; width: 100px; pointer-events: none; opacity: 0.8; transition: opacity 0.5s ease;">
+    <div style="font-size: 40px; text-align: center; animation: swipeHand 1.5s ease-in-out infinite;">👆</div>
+    <div style="font-family: 'Inter', sans-serif; font-size: 0.65rem; color: #8d6e63; text-align: center; margin-top: -5px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500;">Swipe to Pop</div>
+    <style>
+        @keyframes swipeHand {
+            0%, 100% { transform: translateX(-20px) rotate(-15deg); }
+            50% { transform: translateX(20px) rotate(15deg); }
+        }
+    </style>
 </div>
     <div class="footer" style="text-align: center; font-family: sans-serif; color: #555; padding: 20px 0;">
     Designed with Love by
